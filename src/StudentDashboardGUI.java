@@ -2,7 +2,6 @@
 // Dashboard with course input/view options
 
 import javax.swing.*;
-import java.awt.event.*;
 
 public class StudentDashboardGUI extends JFrame {
     private String regNo;
@@ -28,7 +27,8 @@ public class StudentDashboardGUI extends JFrame {
         });
 
         viewButton.addActionListener(e -> {
-            new MySeatingViewGUI(regNo).setVisible(true);
+            new SeatingViewGUI(regNo).setVisible(true);
+
         });
     }
 }
