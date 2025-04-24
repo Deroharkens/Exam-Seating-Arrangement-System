@@ -1,6 +1,3 @@
-// AdminLoginGUI.java
-// Admin login screen
-
 import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -38,28 +35,48 @@ public class AdminLoginGUI extends JFrame {
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String user = usernameField.getText();
-                String pass = new String(passwordField.getPassword());
+                String user = usernameField.getText().trim();
+                String pass = new String(passwordField.getPassword()).trim();
+
+                System.out.println("🔍 Entered Username: " + user);
+                System.out.println("🔍 Entered Password: " + pass);
 
                 try (Connection con = DBConnection.getConnection()) {
-                    String query = "SELECT * FROM Admins WHERE username = ? AND password = ?";
+                    if (con == null) {
+                        System.err.println("❌ Connection to DB failed.");
+                        JOptionPane.showMessageDialog(null, "Failed to connect to database.");
+                        return;
+                    }
+
+                    // Use LTRIM/RTRIM in case of extra spaces
+                    String query = "SELECT * FROM Admins WHERE LTRIM(RTRIM(username)) = ? AND LTRIM(RTRIM(password)) = ?";
                     PreparedStatement pst = con.prepareStatement(query);
                     pst.setString(1, user);
                     pst.setString(2, pass);
+
                     ResultSet rs = pst.executeQuery();
 
                     if (rs.next()) {
+                        System.out.println("✅ Login successful!");
                         JOptionPane.showMessageDialog(null, "Login successful!");
                         new AdminDashboardGUI().setVisible(true);
                         dispose();
                     } else {
+                        System.out.println("❌ Invalid login attempt.");
                         JOptionPane.showMessageDialog(null, "Invalid credentials!");
                     }
                 } catch (Exception ex) {
+                    System.err.println("❗ Exception during login:");
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Login failed!");
+                    JOptionPane.showMessageDialog(null, "Login failed due to error.");
                 }
             }
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new AdminLoginGUI().setVisible(true);
         });
     }
 }
